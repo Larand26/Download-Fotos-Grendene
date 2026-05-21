@@ -2,15 +2,14 @@ import type { iProduct } from "./interfaces/app.interfaces.js";
 
 // Controllers
 import TxtController from "./controllers/TxtController.js";
+import PhotosController from "./controllers/PhotosController.js";
 
 export default class App {
   async start() {
     // Pegar os produtos da Grendene
     const products = await this.fetchProductsTxt();
-    // Processar os produtos
-    // função
     // Baixar as fotos
-    // função
+    await this.downloadPhotos(products);
   }
 
   async fetchProductsTxt(): Promise<iProduct[] | []> {
@@ -20,5 +19,9 @@ export default class App {
       return [];
     }
     return response.data as iProduct[];
+  }
+
+  async downloadPhotos(products: iProduct[]) {
+    await PhotosController.downloadPhotos(products);
   }
 }
