@@ -14,7 +14,7 @@ export default class App {
 
   async fetchProductsTxt(): Promise<iProduct[] | []> {
     const response = await TxtController.fetchProductsTxt();
-    if (!response || response.data.length === 0) {
+    if (!response || !response.data || response.data.length === 0) {
       console.error("No products found in the text file.");
       return [];
     }
