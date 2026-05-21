@@ -1,5 +1,9 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
 export default {
-  txtFilePath: "C:/Users/Victor.DESKTOP-C4LD4B4/Desktop/20.03/Fotos.txt",
-  photosDownloadPath: "C:/Users/Victor.DESKTOP-C4LD4B4/Desktop/20.03",
-  maxPhotoPositions: 5,
+  txtFilePath: process.env.TXT_FILE_PATH || "",
+  photosDownloadPath: process.env.DOWNLOAD_DIR || "",
+  maxPhotoPositions: Number(process.env.MAX_PHOTO_POSITIONS) || 5,
 };
