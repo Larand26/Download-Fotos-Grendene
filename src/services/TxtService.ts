@@ -1,6 +1,6 @@
 import appConfig from "../config/app.config.js";
 import type { iProduct } from "../interfaces/app.interfaces.js";
-import { access } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 export default class TxtService {
@@ -18,9 +18,7 @@ export default class TxtService {
   private static async readTxtFile(): Promise<string> {
     try {
       const filePath = resolve(appConfig.txtFilePath);
-      const data = await import("node:fs/promises").then((fs) =>
-        fs.readFile(filePath, "utf-8"),
-      );
+      const data = await readFile(filePath, "utf-8");
       return data;
     } catch (error) {
       console.error("Error reading text file:", error);
