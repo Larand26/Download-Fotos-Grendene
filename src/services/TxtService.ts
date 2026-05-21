@@ -32,14 +32,20 @@ export default class TxtService {
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line) => {
+        if (line.split("-").length !== 2) return null;
         const [manufacture = "", codes = ""] = line.split("-");
+        if (!manufacture.trim() || !codes.trim()) return null;
         return {
           manufactureCode: manufacture.trim(),
           colorCode: codes
-            ? codes.split(",").map((c) => c.trim().toUpperCase())
+            ? codes
+                .split(",")
+                .map((c) => c.trim().toUpperCase())
+                .flat()
             : [],
         } as iProduct;
-      });
+      })
+      .filter((product): product is iProduct => product !== null);
   }
 
   static async fetchProductsTxt(): Promise<iProduct[] | []> {
