@@ -1,0 +1,74 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build output
+dist/
+build/
+out/
+coverage/
+
+# Runtime files
+.env
+.env.*.local
+.local
+.cache/
+.next/
+.nuxt/
+.parcel-cache/
+.vite/
+/.pnp
+.pnp.js
+
+# Dependency directories
+.serverless/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+*.tgz
+*.gz
+
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Optional eslint cache
+.eslintcache
+
+# TypeScript
+*.tsbuildinfo
+
+# Mac
+.Spotlight-V100
+.Trashes
+
+# Visual Studio Code workspace
+*.code-workspace
+
+# Optional: lock files (commit these normally, uncomment to ignore)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Misc
+coverage/
+dist/
+tmp/
+temp/
+debug.log
+downloads/
