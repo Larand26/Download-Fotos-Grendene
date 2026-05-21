@@ -6,5 +6,5 @@ export interface iResponse<T = any> {
 
 export interface iProduct {
   manufactureCode: string;
-  colorCode: string[];
+  colorCodes: string[];
 }

@@ -37,7 +37,7 @@ export default class TxtService {
         if (!manufacture.trim() || !codes.trim()) return null;
         return {
           manufactureCode: manufacture.trim(),
-          colorCode: codes
+          colorCodes: codes
             ? codes
                 .split(",")
                 .map((c) => c.trim().toUpperCase())

@@ -47,7 +47,7 @@ export default class PhotosService {
     }
 
     const tasks = products.flatMap((product) =>
-      product.colorCode.flatMap((colorCode) =>
+      product.colorCodes.flatMap((colorCode) =>
         Array.from({ length: appConfig.maxPhotoPositions }, (_, index) => {
           const position = index.toString().padStart(2, "0");
           return this.downloadPhoto(
