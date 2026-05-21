@@ -10,7 +10,7 @@ export default class TxtService {
       await access(filePath);
       return true;
     } catch (error) {
-      console.error("Error checking file existence:", error);
+      console.error("Erro ao verificar existência do arquivo:", error);
       return false;
     }
   }
@@ -21,7 +21,7 @@ export default class TxtService {
       const data = await readFile(filePath, "utf-8");
       return data;
     } catch (error) {
-      console.error("Error reading text file:", error);
+      console.error("Erro ao ler o arquivo de texto:", error);
       return "";
     }
   }

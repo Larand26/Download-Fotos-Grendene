@@ -42,7 +42,7 @@ export default class PhotosService {
     if (products.length === 0) {
       return {
         success: false,
-        message: "No products to download photos for.",
+        message: "Nenhum produto para baixar fotos.",
       };
     }
 
