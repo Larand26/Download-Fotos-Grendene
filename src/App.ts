@@ -22,6 +22,6 @@ export default class App {
   }
 
   async downloadPhotos(products: iProduct[]) {
-    await PhotosController.downloadPhotos(products);
+    return PhotosController.downloadPhotos(products);
   }
 }
