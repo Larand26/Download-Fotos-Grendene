@@ -1,3 +1,5 @@
+import type { iProduct } from "./interfaces/app.interfaces.js";
+
 // Controllers
 import TxtController from "./controllers/TxtController.js";
 
@@ -11,7 +13,12 @@ export default class App {
     // função
   }
 
-  async fetchProductsTxt() {
-    return await TxtController.fetchProductsTxt();
+  async fetchProductsTxt(): Promise<iProduct[] | []> {
+    const response = await TxtController.fetchProductsTxt();
+    if (!response || response.data.length === 0) {
+      console.error("No products found in the text file.");
+      return [];
+    }
+    return response.data as iProduct[];
   }
 }
