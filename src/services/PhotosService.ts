@@ -46,26 +46,25 @@ export default class PhotosService {
       };
     }
 
-    for (const product of products) {
-      for (const colorCode of product.colorCode) {
-        for (
-          let position = 0;
-          position < appConfig.maxPhotoPositions;
-          position++
-        ) {
-          const response = await this.downloadPhoto(
+    const tasks = products.flatMap((product) =>
+      product.colorCode.flatMap((colorCode) =>
+        Array.from({ length: appConfig.maxPhotoPositions }, (_, index) => {
+          const position = index.toString().padStart(2, "0");
+          return this.downloadPhoto(
             product.manufactureCode,
             colorCode,
-            position.toString().padStart(2, "0"),
+            position,
           );
-          if (!response.success) break;
-        }
-      }
-    }
+        }),
+      ),
+    );
+
+    const results = await Promise.all(tasks);
+
     return {
-      success: true,
-      data: products,
-      message: "Fotos baixadas com sucesso",
+      success: results.every((result) => result.success),
+      data: results,
+      message: "Processo de download finalizado",
     };
   }
 }
