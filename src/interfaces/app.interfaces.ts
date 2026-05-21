@@ -1,7 +1,7 @@
-export interface iResponse {
+export interface iResponse<T = any> {
   success: boolean;
   message: string;
-  data?: any;
+  data?: T;
 }
 
 export interface iProduct {
