@@ -19,6 +19,16 @@ export default class PhotosService {
         responseType: "arraybuffer",
       });
 
+      if (
+        !response ||
+        !response.data ||
+        (response.data as ArrayBuffer).byteLength === 0
+      ) {
+        logger.warning(
+          `Resposta vazia ao baixar foto ${manufactureCode}_${colorCode}_${position}. URL: ${url}`,
+        );
+      }
+
       const folderPath = join(appConfig.photosDownloadPath, manufactureCode);
       const filePath = join(
         folderPath,
@@ -35,9 +45,25 @@ export default class PhotosService {
         message: `Foto salva em: ${filePath}`,
       };
     } catch (error) {
-      logger.error(
-        `Erro ao baixar foto ${manufactureCode}_${colorCode}_${position}: ${String(error)}`,
-      );
+      if (axios.isAxiosError && axios.isAxiosError(error)) {
+        logger.error(
+          `Axios error ao baixar foto ${manufactureCode}_${colorCode}_${position}: status=${error.response?.status} statusText=${error.response?.statusText} URL=${url}`,
+        );
+        try {
+          const respBody = error.response?.data
+            ? String(error.response.data).slice(0, 200)
+            : "<sem corpo>";
+          logger.error(`Corpo da resposta: ${respBody}`);
+        } catch (e) {
+          logger.error(
+            `Não foi possível serializar corpo da resposta: ${String(e)}`,
+          );
+        }
+      } else {
+        logger.error(
+          `Erro ao baixar foto ${manufactureCode}_${colorCode}_${position}: ${String(error)}`,
+        );
+      }
       return {
         success: false,
         message: `Erro ao baixar foto ${manufactureCode}_${colorCode}_${position}: ${String(error)}`,
