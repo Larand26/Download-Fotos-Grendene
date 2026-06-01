@@ -2,15 +2,17 @@ import appConfig from "../config/app.config.js";
 import type { iProduct } from "../interfaces/app.interfaces.js";
 import { access, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { logger } from "../utils/logger.js";
 
 export default class TxtService {
   private static async checkFileExists(): Promise<boolean> {
     try {
       const filePath = resolve(appConfig.txtFilePath);
       await access(filePath);
+      logger.info(`Arquivo TXT encontrado: ${filePath}`);
       return true;
     } catch (error) {
-      console.error("Erro ao verificar existência do arquivo:", error);
+      logger.error(`Erro ao verificar existência do arquivo: ${String(error)}`);
       return false;
     }
   }
@@ -19,9 +21,12 @@ export default class TxtService {
     try {
       const filePath = resolve(appConfig.txtFilePath);
       const data = await readFile(filePath, "utf-8");
+      logger.info(
+        `Arquivo lido com sucesso: ${filePath} (tamanho: ${data.length} bytes)`,
+      );
       return data;
     } catch (error) {
-      console.error("Erro ao ler o arquivo de texto:", error);
+      logger.error(`Erro ao ler o arquivo de texto: ${String(error)}`);
       return "";
     }
   }
@@ -57,6 +62,8 @@ export default class TxtService {
     const text = await this.readTxtFile();
 
     const products = this.parseProductsFromText(text);
+
+    logger.info(`Produtos parseados: ${products.length}`);
 
     return products;
   }
