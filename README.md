@@ -65,8 +65,8 @@ referência-código de cor,código de cor,código de cor...
 ```
 
 ```Fotos.txt
-06466-09064,BD960,BP042...
-25122-09064,20764,BO791...
+06466-09064,BD960,BP042
+25122-09064,20764,BO791
 ```
 
 Desenvolvido por Victor de Brito Laranjeira
