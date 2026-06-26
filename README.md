@@ -56,3 +56,17 @@ $ npm install
 # 5. Execute o script de automação
 $ npm run start
 ```
+
+Crie um arquivo chamado Fotos.txt e defina o caminho absoluto dele na variável TXT_FILE_PATH dentro do seu .env.
+
+```Fotos.txt
+referência-código de cor,código de cor,código de cor...
+referência-código de cor,código de cor,código de cor...
+```
+
+```Fotos.txt
+06466-09064,BD960,BP042...
+25122-09064,20764,BO791...
+```
+
+Desenvolvido por Victor de Brito Laranjeira
