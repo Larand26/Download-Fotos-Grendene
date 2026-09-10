@@ -127,7 +127,7 @@ export default class TxtService {
 
             return {
               resalePrice: resalePriceValue,
-              packing: matchingRows.length === 1 ? "F" : "C",
+              packing: matchingRows.length === 1 ? "C" : "F",
             };
           }
         }
