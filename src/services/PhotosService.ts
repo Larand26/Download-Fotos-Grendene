@@ -4,8 +4,38 @@ import axios from "axios";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { logger } from "../utils/logger.js";
+import TxtService from "./TxtService.js";
 
 export default class PhotosService {
+  /**
+   * Salva as informações de preço e embalagem em um arquivo dentro da pasta do produto
+   */
+  public static async saveProductInfo(manufactureCode: string): Promise<void> {
+    try {
+      logger.info(`Salvando informações para o produto: ${manufactureCode}`);
+      const folderPath = join(appConfig.photosDownloadPath, manufactureCode);
+      await mkdir(folderPath, { recursive: true });
+
+      const priceInfo = await TxtService.getResalePrice(manufactureCode);
+
+      const filePath = join(folderPath, "info.txt");
+      const content = priceInfo
+        ? JSON.stringify(priceInfo, null, 2)
+        : JSON.stringify(
+            { message: "Informações não encontradas no Excel" },
+            null,
+            2,
+          );
+
+      await writeFile(filePath, content, "utf-8");
+      logger.info(`Arquivo de informações salvo em: ${filePath}`);
+    } catch (error) {
+      logger.error(
+        `Erro ao salvar arquivo de informações para ${manufactureCode}: ${String(error)}`,
+      );
+    }
+  }
+
   private static async downloadPhoto(
     manufactureCode: string,
     colorCode: string,
@@ -78,6 +108,11 @@ export default class PhotosService {
         message: "Nenhum produto para baixar fotos.",
       };
     }
+
+    // Cria/salva o arquivo com as infos para cada produto
+    await Promise.all(
+      products.map((product) => this.saveProductInfo(product.manufactureCode)),
+    );
 
     const tasks = products.flatMap((product) =>
       product.colorCodes.flatMap((colorCode) =>
