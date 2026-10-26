@@ -38,25 +38,40 @@ export default class TxtService {
   }
 
   private static parseProductsFromText(text: string): iProduct[] {
-    return text
-      .split("\n")
+    // Agrupa por referência: a mesma referência em várias linhas soma as cores
+    const products = new Map<string, Set<string>>();
+
+    text
+      .replace(/^﻿/, "")
+      .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean)
-      .map((line) => {
-        if (line.split("-").length !== 2) return null;
-        const [manufacture = "", codes = ""] = line.split("-");
-        if (!manufacture.trim() || !codes.trim()) return null;
-        return {
-          manufactureCode: manufacture.trim(),
-          colorCodes: codes
-            ? codes
-                .split(",")
-                .map((c) => c.trim().toUpperCase())
-                .flat()
-            : [],
-        } as iProduct;
-      })
-      .filter((product): product is iProduct => product !== null);
+      .forEach((line, index) => {
+        const separator = line.indexOf("-");
+        const manufacture = separator === -1 ? "" : line.slice(0, separator);
+        const codes = separator === -1 ? "" : line.slice(separator + 1);
+        const colorCodes = codes
+          .split(/[,;]/)
+          .map((c) => c.trim().toUpperCase())
+          .filter(Boolean);
+
+        if (!manufacture.trim() || colorCodes.length === 0) {
+          logger.warning(
+            `Linha ${index + 1} ignorada (formato esperado "referência-cor,cor"): ${line}`,
+          );
+          return;
+        }
+
+        const key = manufacture.trim();
+        const colors = products.get(key) ?? new Set<string>();
+        colorCodes.forEach((c) => colors.add(c));
+        products.set(key, colors);
+      });
+
+    return [...products].map(([manufactureCode, colors]) => ({
+      manufactureCode,
+      colorCodes: [...colors],
+    }));
   }
 
   static async fetchProductsTxt(): Promise<iProduct[] | []> {
@@ -74,12 +89,13 @@ export default class TxtService {
     return products;
   }
 
-  static async getResalePrice(
-    manufactureCode: string,
-  ): Promise<ResalePriceResult | null> {
-    try {
+  // Planilhas lidas uma única vez e reaproveitadas para todos os produtos
+  private static excelSheetsPromise: Promise<any[][][]> | null = null;
+
+  private static loadExcelSheets(): Promise<any[][][]> {
+    this.excelSheetsPromise ??= (async () => {
       const folderPath =
-        "C:\\Users\\Victor.DESKTOP-C4LD4B4\\Desktop\\20.03\\segmentacao";
+        "C:\\Users\\vbl09\\OneDrive\\Desktop\\20.03\\Segmentacao";
       const files = await readdir(folderPath);
 
       // Filtra apenas arquivos válidos do Excel e ignora temporários (~$)
@@ -89,8 +105,7 @@ export default class TxtService {
           !file.startsWith("~$"),
       );
 
-      const searchCode = String(manufactureCode).trim().toLowerCase();
-
+      const sheets: any[][][] = [];
       for (const file of excelFiles) {
         const fullPath = join(folderPath, file);
 
@@ -106,30 +121,44 @@ export default class TxtService {
           if (!sheet) continue;
 
           // Extrai linhas preservando formatações (R$)
-          const rows: any[][] = XLSX.utils.sheet_to_json(sheet, {
-            header: 1,
-            raw: false,
-            defval: "",
-          });
+          sheets.push(
+            XLSX.utils.sheet_to_json(sheet, {
+              header: 1,
+              raw: false,
+              defval: "",
+            }),
+          );
+        }
+      }
+      return sheets;
+    })();
+    return this.excelSheetsPromise;
+  }
 
-          // Busca correspondências na Coluna C (índice 2)
-          const matchingRows = rows.filter((row) => {
-            const cellC = String(row?.[1] ?? "")
-              .trim()
-              .toLowerCase();
-            return cellC === searchCode;
-          });
+  static async getResalePrice(
+    manufactureCode: string,
+  ): Promise<ResalePriceResult | null> {
+    try {
+      const searchCode = String(manufactureCode).trim().toLowerCase();
 
-          // Se encontrar 1 ou 2 correspondências na mesma tabela
-          if (matchingRows.length === 1 || matchingRows.length === 2) {
-            const firstMatch = matchingRows[0];
-            const resalePriceValue = String(firstMatch?.[5] ?? "").trim();
+      for (const rows of await this.loadExcelSheets()) {
+        // Busca correspondências na Coluna C (índice 2)
+        const matchingRows = rows.filter((row) => {
+          const cellC = String(row?.[1] ?? "")
+            .trim()
+            .toLowerCase();
+          return cellC === searchCode;
+        });
 
-            return {
-              resalePrice: resalePriceValue,
-              packing: matchingRows.length === 1 ? "C" : "F",
-            };
-          }
+        // Se encontrar 1 ou 2 correspondências na mesma tabela
+        if (matchingRows.length === 1 || matchingRows.length === 2) {
+          const firstMatch = matchingRows[0];
+          const resalePriceValue = String(firstMatch?.[5] ?? "").trim();
+
+          return {
+            resalePrice: resalePriceValue,
+            packing: matchingRows.length === 1 ? "C" : "F",
+          };
         }
       }
 
